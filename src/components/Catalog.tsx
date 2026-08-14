@@ -4,12 +4,14 @@ import { SOURCES } from "../config";
 
 interface CatalogProps {
   sourceKey: string;
+  nickname: string;
   list: MacVod[];
   loading: boolean;
   error: string;
   page: number;
   pagecount: number;
   onSourceChange: (key: string) => void;
+  onNicknameChange: (name: string) => void;
   onSearch: (wd: string) => void;
   onPage: (pg: number) => void;
   onOpenDetail: (vod: MacVod) => void;
@@ -21,6 +23,12 @@ export default function Catalog(props: CatalogProps) {
     <>
       <div className="topbar">
         <span className="title">一起看</span>
+        <input
+          className="input nickname-input"
+          placeholder="你的昵称"
+          value={props.nickname}
+          onChange={(e) => props.onNicknameChange(e.target.value)}
+        />
         <select className="select" value={props.sourceKey} onChange={(e) => props.onSourceChange(e.target.value)}>
           {SOURCES.map((s) => (
             <option key={s.key} value={s.key}>

@@ -49,8 +49,34 @@ export default function App() {
   const [chats, setChats] = useState<ChatMsg[]>([]);
   const [media, setMedia] = useState<MediaState | null>(null);
 
-  const [nickname] = useState(randomNickname);
-  const [nicknameColor] = useState(() => RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)]);
+  const [nickname, setNickname] = useState<string>(() => {
+    try {
+      return localStorage.getItem("wt-nickname") || randomNickname();
+    } catch {
+      return randomNickname();
+    }
+  });
+  const [nicknameColor] = useState<string>(() => {
+    try {
+      const c = localStorage.getItem("wt-nickname-color");
+      if (c) return c;
+      const cc = RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
+      localStorage.setItem("wt-nickname-color", cc);
+      return cc;
+    } catch {
+      return RANDOM_COLORS[Math.floor(Math.random() * RANDOM_COLORS.length)];
+    }
+  });
+
+  const changeNickname = useCallback((name: string) => {
+    const n = name.trim() || randomNickname();
+    setNickname(n);
+    try {
+      localStorage.setItem("wt-nickname", n);
+    } catch {
+      /* noop */
+    }
+  }, []);
 
   const playerRef = useRef<any>(null);
   const roomRef = useRef<WatchRoom | null>(null);
@@ -350,6 +376,7 @@ export default function App() {
       {screen === "catalog" ? (
         <Catalog
           sourceKey={sourceKey}
+          nickname={nickname}
           list={list}
           loading={loading}
           error={error}
@@ -360,6 +387,7 @@ export default function App() {
             setWd("");
             setPage(1);
           }}
+          onNicknameChange={changeNickname}
           onSearch={(kw) => {
             setWd(kw);
             loadList(1, kw);

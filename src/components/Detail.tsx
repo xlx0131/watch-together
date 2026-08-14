@@ -26,7 +26,11 @@ export default function Detail(props: DetailProps) {
       </div>
       {props.error ? <div className="error">{props.error}</div> : null}
       <div className="detail">
-        <div className="detail-poster" style={props.vod.vod_pic ? { backgroundImage: `url(${props.vod.vod_pic})` } : undefined} />
+        {props.vod.vod_pic ? (
+          <img className="detail-poster" src={props.vod.vod_pic} alt={props.vod.vod_name} />
+        ) : (
+          <div className="detail-poster detail-poster-empty">🎬</div>
+        )}
         <div className="detail-main">
           <div className="detail-name">{props.vod.vod_name}</div>
           <div className="detail-meta">

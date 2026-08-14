@@ -190,10 +190,10 @@ export default function Watch(props: WatchProps) {
               ) : (
                 props.chats.map((m) => (
                   <div className="chat-msg" key={m.id}>
-                    <span className="chat-author" style={{ color: m.color || "#3b82f6" }}>
-                      {m.author}：
-                    </span>
-                    <span className="chat-text">{m.text}</span>
+                    <div className="chat-author" style={{ color: m.color || "#3b82f6" }}>
+                      {m.author}
+                    </div>
+                    <div className="chat-text">{m.text}</div>
                   </div>
                 ))
               )}
