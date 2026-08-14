@@ -1,4 +1,5 @@
 import type { MacListResponse } from "../lib/types";
+import { VIDEO_PROXY_BASE } from "../config";
 
 async function fetchJson(url: string): Promise<any> {
   const r = await fetch(url, { headers: { Accept: "application/json" } });
@@ -14,7 +15,7 @@ function macUrl(params: Record<string, string | number | undefined>, sourceKey: 
   Object.entries(params).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== "") sp.append(k, String(v));
   });
-  return `/api/video/proxy?source=${encodeURIComponent(sourceKey)}&${sp.toString()}`;
+  return `${VIDEO_PROXY_BASE}/api/video/proxy?source=${encodeURIComponent(sourceKey)}&${sp.toString()}`;
 }
 
 export async function macList(

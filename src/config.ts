@@ -5,6 +5,9 @@
 export const SUPABASE_URL = "https://eqhbypnwqeszoefcyveu.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_59_-gXiUd3NNxW5Tthws9g_nd49i_Qe"; // 新版可发布密钥（publishable key，等价旧版 anon key，客户端安全）
 
+// 视频数据源反代地址：复用你已在 Cloudflare 部署的 /api/video 反代（带 CORS）
+export const VIDEO_PROXY_BASE = "https://xn--rtzp06a6qg.site";
+
 // 视频数据源（对应 functions/api/video/proxy.js 里的 SOURCES key）
 export interface VideoSource {
   key: string;
