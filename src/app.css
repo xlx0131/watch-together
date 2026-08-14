@@ -385,20 +385,111 @@
 }
 
 @media (max-width: 760px) {
+  /* 顶栏换行，避免横向溢出 */
+  .topbar {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .topbar .title {
+    flex: 1 1 100%;
+    font-size: 16px;
+  }
+  .topbar .nickname-input {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+    min-width: 90px;
+  }
+  .topbar .select {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .topbar .input {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  .topbar .btn {
+    flex: 1 1 100%;
+  }
+
+  /* 选片网格：手机 3 列，更紧凑 */
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+  .card-name {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .card-meta {
+    font-size: 11px;
+  }
+
+  /* 详情页：纵向 + 海报居中 + 完整显示 */
   .detail {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    padding: 14px;
+    gap: 14px;
   }
   .detail-poster {
-    width: 140px;
+    width: 150px;
+    max-width: none;
+    align-self: center;
   }
+  .detail-name {
+    font-size: 18px;
+  }
+  .detail-content {
+    max-height: 100px;
+  }
+  .ep,
+  .source-tab {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* 观影页：视频在上（16:9），聊天/成员在下 */
   .watch {
     flex-direction: column;
   }
+  .watch-stage {
+    flex: none;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
   .watch-side {
     width: 100%;
-    height: 42%;
+    flex: 1;
+    min-height: 0;
     border-left: none;
     border-top: 1px solid var(--border);
+  }
+  .members {
+    max-height: 80px;
+  }
+  .hint {
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+  .side-head {
+    padding: 10px 12px;
+  }
+  .chat-input,
+  .side-foot {
+    padding: 8px 12px;
+  }
+
+  /* 触控友好：按钮/输入框加高 */
+  .btn {
+    min-height: 40px;
+  }
+  .input,
+  .select {
+    min-height: 40px;
   }
 }
