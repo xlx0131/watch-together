@@ -1,18 +1,18 @@
 import { useEffect, useRef } from "react";
 import DPlayer from "dplayer";
 import Hls from "hls.js";
+import { isHlsUrl } from "../lib/play";
 import type { Member, PlaySource } from "../lib/types";
 
 interface WatchProps {
   vodName: string;
-  rawUrl: string;
+  playUrl: string;
   role: "host" | "guest";
   solo: boolean;
   members: Member[];
   sources: PlaySource[];
   selSource: number;
   selEp: number;
-  isIframeSource: boolean;
   notice: string;
   onPlayerReady: (dp: any | null) => void;
   onEvent: (type: "play" | "pause" | "seek", t: number) => void;
@@ -31,12 +31,16 @@ export default function Watch(props: WatchProps) {
     const container = containerRef.current;
     if (!container) return;
 
-    // 非 m3u/mp4 源 → iframe 兜底（不可同步、无弹幕）
-    if (props.isIframeSource) {
+    const playUrl = props.playUrl;
+    const isHls = isHlsUrl(playUrl);
+    const isDirectVideo = /\.(mp4|webm|m4v|mov)(\?|$)/i.test(playUrl);
+
+    // 防御兜底：既不是 hls 也不是直链视频（理论上已被 resolvePlayUrl 归一化，不会走到）
+    if (!isHls && !isDirectVideo) {
       container.innerHTML = "";
       const iframe = document.createElement("iframe");
       iframe.className = "iframe-full";
-      iframe.src = props.rawUrl;
+      iframe.src = playUrl;
       iframe.setAttribute("allowfullscreen", "true");
       iframe.setAttribute("allow", "autoplay; fullscreen; encrypted-media; picture-in-picture");
       container.appendChild(iframe);
@@ -46,7 +50,6 @@ export default function Watch(props: WatchProps) {
       };
     }
 
-    const isHls = /\.m3u8?(\?|$)/i.test(props.rawUrl);
     const dp: any = new DPlayer({
       container,
       autoplay: false,
@@ -56,17 +59,30 @@ export default function Watch(props: WatchProps) {
       hotkey: true,
       video: isHls
         ? {
-            url: props.rawUrl,
+            url: playUrl,
             type: "customHls",
             customType: {
               customHls: (video: HTMLVideoElement) => {
                 const hls = new Hls();
-                hls.loadSource(props.rawUrl);
+                let fellBack = false;
+                hls.on(Hls.Events.ERROR, (_e: any, data: any) => {
+                  if (data && data.fatal && !fellBack) {
+                    fellBack = true;
+                    try {
+                      hls.destroy();
+                    } catch {
+                      /* noop */
+                    }
+                    // 兜底：若 play.js 实际返回的是 mp4（非 m3u8），改原生播放
+                    video.src = playUrl;
+                  }
+                });
+                hls.loadSource(playUrl);
                 hls.attachMedia(video);
               },
             },
           }
-        : { url: props.rawUrl, type: "normal" },
+        : { url: playUrl, type: "normal" },
       danmaku: { id: "wt-" + Date.now(), api: "", addition: [] },
     } as any);
 
@@ -105,7 +121,7 @@ export default function Watch(props: WatchProps) {
       container.innerHTML = "";
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.rawUrl, props.isIframeSource]);
+  }, [props.playUrl]);
 
   const canControl = props.solo || props.role === "host";
   const showRoom = !props.solo;
@@ -121,7 +137,6 @@ export default function Watch(props: WatchProps) {
           <span className="role-tag">{props.solo ? "单人" : props.role === "host" ? "房主" : "观众"}</span>
         </div>
         {props.notice ? <div className="notice">{props.notice}</div> : null}
-        {props.isIframeSource ? <div className="hint">该源为网页播放源，暂不支持进度同步与弹幕</div> : null}
         {canControl ? (
           <div className="ctrl">
             {props.sources.length > 1 ? (

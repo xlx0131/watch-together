@@ -3,6 +3,7 @@ import "./app.css";
 import { DEFAULT_SOURCE } from "./config";
 import { macDetail, macList } from "./api/mac";
 import { parsePlayUrl } from "./lib/parse";
+import { resolvePlayUrl } from "./lib/play";
 import { WatchRoom, genRoomId, isSupabaseConfigured } from "./lib/room";
 import type { MacVod, Member, PlayTree, RoomMsg } from "./lib/types";
 import Catalog from "./components/Catalog";
@@ -220,7 +221,7 @@ export default function App() {
       vodName: detail.vod_name,
       source: src.name,
       ep: selEp,
-      playUrl: ep.url,
+      playUrl: resolvePlayUrl(ep.url),
     };
     setMedia(m);
     setScreen("watch");
@@ -266,11 +267,11 @@ export default function App() {
         vodName: media?.vodName || detail?.vod_name || "",
         source: media?.source || src?.name || "",
         ep: i,
-        playUrl: ep.url,
+        playUrl: resolvePlayUrl(ep.url),
       };
       setMedia(m);
       if (roleRef.current === "host" && roomRef.current) {
-        roomRef.current.send({ kind: "media", vodId: m.vodId, vodName: m.vodName, source: m.source, ep: i, playUrl: ep.url });
+        roomRef.current.send({ kind: "media", vodId: m.vodId, vodName: m.vodName, source: m.source, ep: i, playUrl: m.playUrl });
         roomRef.current.send({ kind: "seek", t: 0 });
       }
     },
@@ -289,11 +290,11 @@ export default function App() {
         vodName: media?.vodName || detail?.vod_name || "",
         source: src.name,
         ep: 0,
-        playUrl: ep.url,
+        playUrl: resolvePlayUrl(ep.url),
       };
       setMedia(m);
       if (roleRef.current === "host" && roomRef.current) {
-        roomRef.current.send({ kind: "media", vodId: m.vodId, vodName: m.vodName, source: src.name, ep: 0, playUrl: ep.url });
+        roomRef.current.send({ kind: "media", vodId: m.vodId, vodName: m.vodName, source: src.name, ep: 0, playUrl: m.playUrl });
         roomRef.current.send({ kind: "seek", t: 0 });
       }
     },
@@ -326,8 +327,6 @@ export default function App() {
     setNotice("");
     setScreen("catalog");
   }, []);
-
-  const isIframeSource = !!(media && !/\.(m3u8|m3u|mp4|webm|m4v|mov)(\?|$)/i.test(media.playUrl));
 
   return (
     <div className="app">
@@ -367,14 +366,13 @@ export default function App() {
       ) : media ? (
         <Watch
           vodName={media.vodName || "一起看"}
-          rawUrl={media.playUrl}
+          playUrl={media.playUrl}
           role={role}
           solo={solo}
           members={members}
           sources={tree.sources}
           selSource={selSource}
           selEp={selEp}
-          isIframeSource={isIframeSource}
           notice={notice}
           onPlayerReady={(dp) => {
             playerRef.current = dp;
