@@ -90,7 +90,7 @@ export default function Watch(props: WatchProps) {
     dp.on("play", () => props.onEvent("play", dp.video?.currentTime || 0));
     dp.on("pause", () => props.onEvent("pause", dp.video?.currentTime || 0));
     dp.on("seeked", () => props.onEvent("seek", dp.video?.currentTime || 0));
-    dp.on("danmaku.send", (d: any) => props.onDanmaku(d.text, d.color, d.type));
+    dp.on("danmaku_send", (d: any) => props.onDanmaku(d.text, d.color, d.type));
 
     // 应用待同步状态（入房对齐 / 收到 sync-state）
     const sync = props.pendingSync();

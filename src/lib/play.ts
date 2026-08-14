@@ -1,16 +1,17 @@
-import { VIDEO_PROXY_BASE } from "../config";
-
 /**
- * 把 maccms10 的原始播放地址解析成「可控、可同步、可弹幕」的地址：
- *  - m3u8 / mp4 等直链 → 原样返回（m3u8 用 hls.js，mp4 用原生）
- *  - 网页源(html 播放页) → 走 /api/video/play 归一化成 m3u8（分片重写到反代上，跨域也解决）
+ * 播放地址解析。
+ * 说明：ffzy 等源给出的是「分享页」(如 vip.ffzy-play*.com/share/...)，这些页面被 CDN
+ * 做了反爬（Cloudflare 边缘节点抓取会被挡、返回的不是含 const url="..." 的真实 HTML），
+ * 所以无法用 /api/video/play 归一化成 m3u8。故 v1 采用：
+ *   - m3u8 直链 → hls.js（可同步、可弹幕）
+ *   - mp4/webm 直链 → 原生（可同步、可弹幕）
+ *   - 其它（分享页/网页源）→ iframe 兜底（能播，但不可同步、无弹幕）
  */
 export function resolvePlayUrl(rawUrl: string): string {
-  if (/\.(m3u8|m3u|mp4|webm|m4v|mov)(\?|$)/i.test(rawUrl)) return rawUrl;
-  return `${VIDEO_PROXY_BASE}/api/video/play?url=${encodeURIComponent(rawUrl)}`;
+  return rawUrl;
 }
 
-/** 该播放地址是否需要 hls.js（m3u8 或经 play.js 归一化后的不透明地址） */
+/** 该播放地址是否用 hls.js 播放 */
 export function isHlsUrl(url: string): boolean {
-  return /\.m3u8?(\?|$)/i.test(url) || /\/api\/video\/play\?/i.test(url);
+  return /\.m3u8?(\?|$)/i.test(url);
 }
