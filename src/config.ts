@@ -15,12 +15,12 @@ export interface VideoSource {
 }
 
 export const SOURCES: VideoSource[] = [
-  { key: "ffzy", name: "非凡云" },
+  { key: "modu", name: "魔都云（直链·推荐）" },
   { key: "subo", name: "速播" },
+  { key: "ffzy", name: "非凡云" },
   { key: "ikun", name: "非凡云(ikun)" },
-  { key: "modu", name: "魔都云" },
   { key: "subocaiji", name: "速播云" },
   { key: "youzhi", name: "优质云" },
 ];
 
-export const DEFAULT_SOURCE = "ffzy";
+export const DEFAULT_SOURCE = "modu";

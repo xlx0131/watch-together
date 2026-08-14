@@ -254,13 +254,51 @@
   color: var(--muted);
 }
 .members {
-  flex: 1;
+  flex: none;
+  max-height: 110px;
   overflow-y: auto;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+.chat-head {
+  flex: none;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+.chat-list {
+  flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chat-msg {
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.chat-author {
+  color: var(--accent);
+  margin-right: 6px;
+  font-weight: 600;
+}
+.chat-text {
+  color: var(--text);
+}
+.chat-input {
+  flex: none;
+  padding: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+.chat-input .input {
+  flex: 1;
 }
 .member {
   display: flex;

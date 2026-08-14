@@ -5,7 +5,7 @@ import { macDetail, macList } from "./api/mac";
 import { parsePlayUrl } from "./lib/parse";
 import { resolvePlayUrl } from "./lib/play";
 import { WatchRoom, genRoomId, isSupabaseConfigured } from "./lib/room";
-import type { MacVod, Member, PlayTree, RoomMsg } from "./lib/types";
+import type { ChatMsg, MacVod, Member, PlayTree, RoomMsg } from "./lib/types";
 import Catalog from "./components/Catalog";
 import Detail from "./components/Detail";
 import Watch from "./components/Watch";
@@ -46,6 +46,7 @@ export default function App() {
   const [role, setRole] = useState<"host" | "guest">("guest");
   const [solo, setSolo] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
+  const [chats, setChats] = useState<ChatMsg[]>([]);
   const [media, setMedia] = useState<MediaState | null>(null);
 
   const [nickname] = useState(randomNickname);
@@ -99,6 +100,8 @@ export default function App() {
         } catch {
           /* noop */
         }
+      } else if (msg.kind === "chat") {
+        setChats((c) => [...c, msg]);
       } else if (msg.kind === "sync-request") {
         if (roleRef.current === "host") syncState();
       } else if (msg.kind === "sync-state") {
@@ -256,6 +259,19 @@ export default function App() {
     [nickname],
   );
 
+  const onChat = useCallback(
+    (text: string) => {
+      const t = text.trim();
+      if (!t) return;
+      const msg: ChatMsg = { kind: "chat", id: Date.now().toString(36), text: t, author: nickname, color: nicknameColor, ts: Date.now(), from: "" };
+      setChats((c) => [...c, msg]);
+      if (roomRef.current) {
+        roomRef.current.send({ kind: "chat", id: msg.id, text: msg.text, author: msg.author, color: msg.color, ts: msg.ts });
+      }
+    },
+    [nickname, nicknameColor],
+  );
+
   const onSwitchEp = useCallback(
     (i: number) => {
       const src = tree.sources[selSource];
@@ -322,6 +338,7 @@ export default function App() {
     roomRef.current?.leave();
     setRoom(null);
     setMembers([]);
+    setChats([]);
     setMedia(null);
     setSolo(false);
     setNotice("");
@@ -370,6 +387,7 @@ export default function App() {
           role={role}
           solo={solo}
           members={members}
+          chats={chats}
           sources={tree.sources}
           selSource={selSource}
           selEp={selEp}
@@ -379,6 +397,7 @@ export default function App() {
           }}
           onEvent={onPlayerEvent}
           onDanmaku={onDanmaku}
+          onChat={onChat}
           onSwitchSource={onSwitchSource}
           onSwitchEp={onSwitchEp}
           onShare={onShare}

@@ -47,10 +47,21 @@ export type OutgoingMsg =
   | { kind: "pause"; t: number }
   | { kind: "seek"; t: number }
   | { kind: "danmaku"; id: string; text: string; color: string; type: "right" | "top" | "bottom"; videoTime: number; author: string; ts: number }
+  | { kind: "chat"; id: string; text: string; author: string; color: string; ts: number }
   | { kind: "sync-request" }
   | { kind: "sync-state"; state: RoomState };
 
 export type RoomMsg = OutgoingMsg & { from: string };
+
+export interface ChatMsg {
+  kind: "chat";
+  id: string;
+  text: string;
+  author: string;
+  color: string;
+  ts: number;
+  from: string;
+}
 
 export interface RoomState {
   vodId: string;

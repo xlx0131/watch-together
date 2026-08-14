@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import DPlayer from "dplayer";
 import Hls from "hls.js";
 import { isHlsUrl } from "../lib/play";
-import type { Member, PlaySource } from "../lib/types";
+import type { ChatMsg, Member, PlaySource } from "../lib/types";
 
 interface WatchProps {
   vodName: string;
@@ -10,6 +10,7 @@ interface WatchProps {
   role: "host" | "guest";
   solo: boolean;
   members: Member[];
+  chats: ChatMsg[];
   sources: PlaySource[];
   selSource: number;
   selEp: number;
@@ -17,6 +18,7 @@ interface WatchProps {
   onPlayerReady: (dp: any | null) => void;
   onEvent: (type: "play" | "pause" | "seek", t: number) => void;
   onDanmaku: (text: string, color: string, type: string) => void;
+  onChat: (text: string) => void;
   onSwitchSource: (i: number) => void;
   onSwitchEp: (i: number) => void;
   onShare: () => void;
@@ -26,6 +28,7 @@ interface WatchProps {
 
 export default function Watch(props: WatchProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [chatText, setChatText] = useState("");
 
   useEffect(() => {
     const container = containerRef.current;
@@ -137,6 +140,7 @@ export default function Watch(props: WatchProps) {
           <span className="role-tag">{props.solo ? "单人" : props.role === "host" ? "房主" : "观众"}</span>
         </div>
         {props.notice ? <div className="notice">{props.notice}</div> : null}
+        <div className="hint">💡 无法实时同步？切换播放源（魔都云为直链）后重新分享链接</div>
         {canControl ? (
           <div className="ctrl">
             {props.sources.length > 1 ? (
@@ -178,6 +182,44 @@ export default function Watch(props: WatchProps) {
                   </div>
                 ))
               )}
+            </div>
+            <div className="chat-head">聊天</div>
+            <div className="chat-list">
+              {props.chats.length === 0 ? (
+                <div className="empty">暂无消息</div>
+              ) : (
+                props.chats.map((m) => (
+                  <div className="chat-msg" key={m.id}>
+                    <span className="chat-author" style={{ color: m.color || "#3b82f6" }}>
+                      {m.author}：
+                    </span>
+                    <span className="chat-text">{m.text}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="chat-input">
+              <input
+                className="input"
+                placeholder="发消息…"
+                value={chatText}
+                onChange={(e) => setChatText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    props.onChat(chatText);
+                    setChatText("");
+                  }
+                }}
+              />
+              <button
+                className="btn primary"
+                onClick={() => {
+                  props.onChat(chatText);
+                  setChatText("");
+                }}
+              >
+                发送
+              </button>
             </div>
           </>
         ) : null}
